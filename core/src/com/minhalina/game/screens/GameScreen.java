@@ -5,16 +5,14 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.Array;
 import com.minhalina.game.AsteroidsGame;
 import com.minhalina.game.entities.BaseActor;
+import com.minhalina.game.entities.Laser;
 import com.minhalina.game.entities.Meteor;
 import com.minhalina.game.entities.PlayerShip;
 
 public class GameScreen extends BaseScreen {
     private PlayerShip playerShip;
-    private Array<BaseActor> meteorList;
-    private Array<BaseActor> laserList;
     private Label score;
     private final Game game;
 
@@ -28,10 +26,7 @@ public class GameScreen extends BaseScreen {
         playerShip = new PlayerShip(0, 0, getStage());
         playerShip.centerAtActor(space);
 
-        meteorList = new Array<>();
         initMeteors();
-
-        laserList = new Array<>();
 
         score = new Label("Score:", AsteroidsGame.labelStyleNormal);
         score.setPosition(10, AsteroidsGame.HEIGHT - score.getHeight() - 10);
@@ -40,7 +35,7 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public void update(float dt) {
-        for (BaseActor meteor : meteorList) {
+        for (BaseActor meteor : getActors(Meteor.class)) {
             if (meteor.overlaps(playerShip)) {
                 playerShip.damageShip();
                 if (playerShip.isDestroyed()) {
@@ -51,12 +46,13 @@ public class GameScreen extends BaseScreen {
                     changeMeteor(meteor);
                 }
             }
-            for (BaseActor laser : laserList) {
-                if (laser.overlaps(meteor)) {
-                    laser.remove();
-                    laserList.removeValue(laser, false);
-                    changeMeteor(meteor);
-                    playerShip.incrementScore();
+            else {
+                for (BaseActor laser : getActors(Laser.class)) {
+                    if (laser.overlaps(meteor)) {
+                        laser.remove();
+                        changeMeteor(meteor);
+                        playerShip.incrementScore();
+                    }
                 }
             }
             score.setText("Score: " + playerShip.getScore());
@@ -66,15 +62,14 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (button == Input.Buttons.LEFT) {
-            BaseActor laser = playerShip.shoot();
-            laserList.add(laser);
+            playerShip.shoot();
         }
         return false;
     }
 
     public void initMeteors() {
         for (int i = 0; i < 10; i++) {
-            meteorList.add(createMeteor());
+           createMeteor();
         }
     }
 
@@ -98,8 +93,6 @@ public class GameScreen extends BaseScreen {
 
     private void changeMeteor(BaseActor meteor) {
         meteor.remove();
-        meteorList.removeValue(meteor, false);
-        BaseActor newMeteor = createMeteor();
-        meteorList.add(newMeteor);
+        createMeteor();
     }
 }

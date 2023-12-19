@@ -2,7 +2,10 @@ package com.minhalina.game.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Array;
+import com.minhalina.game.entities.BaseActor;
 
 public abstract class BaseScreen extends InputAdapter implements Screen {
     private final Stage mainStage;
@@ -58,5 +61,14 @@ public abstract class BaseScreen extends InputAdapter implements Screen {
     @Override
     public void dispose() {
         mainStage.dispose();
+    }
+
+    public Array<BaseActor> getActors(Class<? extends Actor> className) {
+        Array<BaseActor> list = new Array<>();
+        for (Actor a : getStage().getActors()) {
+            if (className.isInstance(a))
+                list.add((BaseActor) a);
+        }
+        return list;
     }
 }
